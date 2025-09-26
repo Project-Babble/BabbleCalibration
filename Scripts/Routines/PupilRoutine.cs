@@ -5,19 +5,24 @@ using Godot.Collections;
 
 namespace BabbleCalibration.Scripts.Routines;
 
-public class TutorialRoutine : RoutineBase
+public class PupilRoutine : RoutineBase
 {
-    public LabelRoutineInterface Interface;
+    private PupilRoutineInterface _interface;
+
     public override void Initialize(IBackend backend, Dictionary args = null)
     {
         base.Initialize(backend, args);
-        (var tutorial, Interface) = this.Load<LabelRoutineInterface>("res://Scenes/Routines/TutorialRoutine.tscn");
+        (var tutorial, _interface) = this.Load<PupilRoutineInterface>("res://Scenes/Routines/PupilRoutine.tscn");
         tutorial.ElementTransform = Transform3D.Identity.TranslatedLocal((Vector3.Forward * 2) + Vector3.Up);
     }
 
     public override void Update(float delta)
     {
         base.Update(delta);
-        Interface.Label.Text = Random.Shared.Next().ToString();
+        _interface.Label.Text = Random.Shared.Next().ToString();
+
+        var secondsElapsed = Time.GetTicksMsec() / 1000f;
+        var progress = secondsElapsed % 10f;
+        _interface.Gradient.Colors[0] = Colors.White.Lerp(Colors.Black, progress / 10f);
     }
 }

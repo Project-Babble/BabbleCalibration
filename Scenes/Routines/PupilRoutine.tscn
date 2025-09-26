@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://cri7377d54bp0"]
+
+[ext_resource type="Script" uid="uid://dd0itqehrvbxh" path="res://Scripts/RoutineInterfaces/LabelRoutineInterface.cs" id="1_y0hwu"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_u77vi"]
+
+[node name="TextRoutine" type="PanelContainer" node_paths=PackedStringArray("Label")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_u77vi")
+script = ExtResource("1_y0hwu")
+Label = NodePath("Label")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "Placeholderblablabla"
+horizontal_alignment = 1
+vertical_alignment = 1
