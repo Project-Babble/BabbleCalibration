@@ -53,8 +53,9 @@ public partial class MainScene : Node
         //StartRoutine<TutorialRoutine>();
         //StartRoutine<TextTimerRoutine>(RoutineHelpers.LabelTimerRoutineArgs("timer {0} yippeeeeeee", 20, true, Transform3D.Identity.TranslatedLocal(Vector3.Forward)));
         //StartRoutine<ImageRoutine>(RoutineHelpers.FilePathRoutineArgs("res://Assets/reticule.svg", "FUUUUUUU"));
-        StartRoutine<VideoRoutine>(RoutineHelpers.FilePathRoutineArgs("res://Assets/BabbleCalibration.ogv", "weewoo"));
-    }
+        // StartRoutine<VideoRoutine>(RoutineHelpers.FilePathRoutineArgs("res://Assets/BabbleCalibration.ogv", "weewoo"));
+        StartRoutine<PupilRoutine>();
+	}
 
     public override void _Process(double delta)
     {

@@ -23,6 +23,6 @@ public class PupilRoutine : RoutineBase
 
         var secondsElapsed = Time.GetTicksMsec() / 1000f;
         var progress = secondsElapsed % 10f;
-        _interface.Gradient.Colors[0] = Colors.White.Lerp(Colors.Black, progress / 10f);
+        _interface.Gradient.SetColor(0, Colors.White.Lerp(Colors.Black, progress / 10f));
     }
 }
