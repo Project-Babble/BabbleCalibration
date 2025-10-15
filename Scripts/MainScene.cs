@@ -24,22 +24,18 @@ public partial class MainScene : Node
 
     private Socket TryConnect(int retries = 5)
     {
-        int reconnectCounter = 0;
+        var reconnectCounter = 0;
         while (true)
         {
             try
             {
-                var sock = new SocketFactory().CreateClient("127.0.0.1", 2425);
-                return sock;
+                return new SocketFactory().CreateClient("127.0.0.1", 2425);
             }
-            catch (Exception e)
+            catch
             {
                 reconnectCounter++;
                 Thread.Sleep(500);
-                if (reconnectCounter > retries)
-                {
-                    return null;
-                }
+                if (reconnectCounter > retries) return null;
             }
         }
     }
@@ -111,7 +107,7 @@ public partial class MainScene : Node
         }
         else
         {
-            Socket sock = TryConnect();
+            var sock = TryConnect();
             if (sock == null)
             {
                 GD.Print("Could not connect to Baballonia");
