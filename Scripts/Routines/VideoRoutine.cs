@@ -40,6 +40,8 @@ public class VideoRoutine : RoutineBase
             _interface = interf;
             _text = text;
             if (text.Contains("{0}")) _updateTimer = true;
+
+            _interface.Video.Finished += () => MainScene.Instance.SendRoutineEnded();
         }
     }
 

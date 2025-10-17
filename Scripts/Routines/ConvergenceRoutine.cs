@@ -34,6 +34,8 @@ public class ConvergenceRoutine : RoutineBase
             _element.ElementWidth = 0.075f;
             
             UpdateTransform();
+
+            MainScene.Instance.TimerEndConnect(interf.Timer);
             
             interf.Start(time);
         }

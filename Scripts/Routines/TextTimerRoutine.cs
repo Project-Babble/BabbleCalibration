@@ -8,6 +8,8 @@ public class TextTimerRoutine : RoutineBase
 {
     public string Text = "{0}";
     public LabelTimerRoutineInterface Interface;
+
+    private bool _finished;
     public override void Initialize(IBackend backend, Dictionary args = null)
     {
         base.Initialize(backend, args);
@@ -33,6 +35,8 @@ public class TextTimerRoutine : RoutineBase
 
             Interface.Timer.WaitTime = time;
             Interface.Timer.Start();
+
+            MainScene.Instance.TimerEndConnect(Interface.Timer);
             
             UpdateText();
         }

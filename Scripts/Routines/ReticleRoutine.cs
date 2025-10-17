@@ -26,6 +26,8 @@ public class ReticleRoutine : RoutineBase
             _transform = element.ElementTransform = OriginOffset * transform;
             element.ElementWidth = 0.075f;
             interf.Start(time);
+            
+            MainScene.Instance.TimerEndConnect(interf.Timer);
         }
     }
 

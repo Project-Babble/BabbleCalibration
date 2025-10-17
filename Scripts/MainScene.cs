@@ -10,6 +10,7 @@ using BabbleCalibration.Scripts.Routines;
 using Godot.Collections;
 using OverlaySDK;
 using OverlaySDK.Packets;
+using Timer = Godot.Timer;
 
 public partial class MainScene : Node
 {
@@ -17,6 +18,7 @@ public partial class MainScene : Node
     public static MainScene Instance { get; private set; }
     public IBackend Backend { get; private set; }
     public RoutineBase CurrentRoutine { get; private set; }
+    public string CurrentRoutineName { get; private set; }
 
     public GodotPacketHandler PacketHandler { get; private set; }
 
@@ -231,12 +233,17 @@ public partial class MainScene : Node
                 StartRoutine<DebugRoutine>();
                 break;
         }
+        
+        CurrentRoutineName = name;
 
         return;
+        
         void StartTextTimerRoutine(string text) =>
             StartRoutine<TextTimerRoutine>(RoutineHelpers.LabelTimerRoutineArgs(text,
                 time, true, Transform3D.Identity.TranslatedLocal(Vector3.Forward)));
     }
+    public void TimerEndConnect(Timer timer) => timer.Connect(Timer.SignalName.Timeout, Callable.From(SendRoutineEnded));
+    public void SendRoutineEnded() => SendPacket(new RoutineFinishedPacket(CurrentRoutineName));
     public void PlayStartSound() => PlaySound(StartSound);
     public void PlayEndSound() => PlaySound(EndSound);
     private void PlaySound(AudioStream stream)

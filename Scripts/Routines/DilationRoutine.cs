@@ -11,6 +11,8 @@ public class DilationRoutine : RoutineBase
     private Gradient _gradient = new();
     private Stopwatch _stopwatch = new();
     private Curve _lerpCurve = new();
+
+    private bool _ended = false;
     public override void Initialize(IBackend backend, Dictionary args = null)
     {
         base.Initialize(backend, args);
@@ -67,6 +69,12 @@ public class DilationRoutine : RoutineBase
     public override void Update(float delta)
     {
         base.Update(delta);
+
+        if (!_ended && _stopwatch.Elapsed.TotalSeconds > 16)
+        {
+            _ended = true;
+            MainScene.Instance.SendRoutineEnded();
+        }
 
         var elapsed = (float)_stopwatch.Elapsed.TotalSeconds;
         var sample = _lerpCurve.Sample(elapsed);
