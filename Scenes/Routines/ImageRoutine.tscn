@@ -33,3 +33,4 @@ layout_mode = 2
 text = "placeholder"
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 3

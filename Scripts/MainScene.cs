@@ -40,7 +40,7 @@ public partial class MainScene : Node
         }
     }
     
-    public Transform3D OriginOffset { get; private set; }
+    public Transform3D OriginOffset { get; private set; } = Transform3D.Identity;
     
     public override void _Ready()
     {
@@ -144,7 +144,7 @@ public partial class MainScene : Node
         
         StartRoutine<TextRoutine>(RoutineHelpers.LabelRoutineArgs(Tr(ConnectingString), true, Transform3D.Identity.TranslatedLocal(Vector3.Forward)));
 
-        Task.Run(async () =>
+        /*Task.Run(async () =>
         {
             await Task.Delay(50);
             var headTransform = Backend.HeadTransform();
@@ -153,7 +153,7 @@ public partial class MainScene : Node
             var newQuaternion = new Quaternion(Vector3.Forward, projected);
 
             OriginOffset = new Transform3D(new Basis(newQuaternion), position);
-        });
+        });*/
     }
     private static readonly StringName ConnectingString = "Connecting";
     public void SendPacket<T>(T packet) where T : IPacket
