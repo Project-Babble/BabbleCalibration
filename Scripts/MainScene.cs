@@ -166,14 +166,25 @@ public partial class MainScene : Node
 
     private static readonly AudioStream StartSound = ResourceLoader.Load<AudioStream>("res://Assets/drop_002.ogg");
     private static readonly AudioStream EndSound = ResourceLoader.Load<AudioStream>("res://Assets/confirmation_001.ogg");
+    
     private static readonly StringName GazeTutorialString = "GazeTutorial";
     private static readonly StringName GazeTutorialShortString = "GazeTutorialShort";
+    
     private static readonly StringName BlinkTutorialString = "BlinkTutorial";
     private static readonly StringName BlinkRoutineString = "BlinkRoutine";
+    
     private static readonly StringName DilationTutorialString = "DilationTutorial";
+    
     private static readonly StringName WidenTutorialString = "WidenTutorial";
     private static readonly StringName WidenRoutineString = "WidenRoutine";
+    
     private static readonly StringName ConvergenceTutorialString = "ConvergenceTutorial";
+    
+    private static readonly StringName SquintTutorialString = "SquintTutorial";
+    private static readonly StringName SquintRoutineString = "SquintRoutine";
+    
+    private static readonly StringName BrowTutorialString = "BrowTutorial";
+    private static readonly StringName BrowRoutineString = "BrowRoutine";
     
     public void StartRoutine(string name, float time = 0)
     {
@@ -208,6 +219,18 @@ public partial class MainScene : Node
             case "widen":
                 StartTextTimerRoutine(Tr(WidenRoutineString), true);
                 break;
+            case "squinttutorial":
+                StartTextTimerRoutine(Tr(SquintTutorialString));
+                break;
+            case "squint":
+                StartTextTimerRoutine(Tr(SquintRoutineString), true);
+                break;
+            case "browtutorial":
+                StartTextTimerRoutine(Tr(BrowTutorialString));
+                break;
+            case "brow":
+                StartTextTimerRoutine(Tr(BrowRoutineString), true);
+                break;
             case "convergencetutorial":
                 StartTextTimerRoutine(Tr(ConvergenceTutorialString));
                 break;
@@ -217,15 +240,6 @@ public partial class MainScene : Node
             case "trainer":
                 StartRoutine<GraphRoutine>();
                 break;
-            /*
-            case "startsound":
-                PlaySound(StartSound);
-                break;
-            case "endsound":
-                PlaySound(EndSound);
-                break;
-                */
-            //blame red
             case "close":
                 GetTree().Quit();
                 break;
