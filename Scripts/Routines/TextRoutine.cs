@@ -7,6 +7,8 @@ namespace BabbleCalibration.Scripts.Routines;
 
 public class TextRoutine : RoutineBase
 {
+    private bool _playSounds;
+    public override bool PlaySounds => _playSounds;
     public override void Initialize(IBackend backend, Dictionary args = null)
     {
         base.Initialize(backend, args);
@@ -23,6 +25,8 @@ public class TextRoutine : RoutineBase
                 head = value.AsBool();
             if (args.TryGetValue("transform", out value) && value.VariantType is Variant.Type.Transform3D) 
                 transform = value.AsTransform3D();
+            if (args.TryGetValue("sounds", out value) && value.VariantType is Variant.Type.Bool)
+                _playSounds = value.AsBool();
             
             var (element, interf) = this.Load<LabelRoutineInterface>("res://Scenes/Routines/TextRoutine.tscn", head);
             interf.Label.Text = text;

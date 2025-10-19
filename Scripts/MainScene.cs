@@ -194,7 +194,7 @@ public partial class MainScene : Node
                 StartTextTimerRoutine(Tr(BlinkTutorialString));
                 break;
             case "blink":
-                StartTextTimerRoutine(Tr(BlinkRoutineString));
+                StartTextTimerRoutine(Tr(BlinkRoutineString), true);
                 break;
             case "dilationtutorial":
                 StartTextTimerRoutine(Tr(DilationTutorialString));
@@ -206,7 +206,7 @@ public partial class MainScene : Node
                 StartTextTimerRoutine(Tr(WidenTutorialString));
                 break;
             case "widen":
-                StartTextTimerRoutine(Tr(WidenRoutineString));
+                StartTextTimerRoutine(Tr(WidenRoutineString), true);
                 break;
             case "convergencetutorial":
                 StartTextTimerRoutine(Tr(ConvergenceTutorialString));
@@ -238,9 +238,9 @@ public partial class MainScene : Node
 
         return;
         
-        void StartTextTimerRoutine(string text) =>
+        void StartTextTimerRoutine(string text, bool sounds = false) =>
             StartRoutine<TextTimerRoutine>(RoutineHelpers.LabelTimerRoutineArgs(text,
-                time, true, Transform3D.Identity.TranslatedLocal(Vector3.Forward)));
+                time, true, Transform3D.Identity.TranslatedLocal(Vector3.Forward), sounds));
     }
     public void TimerEndConnect(Timer timer) => timer.Connect(Timer.SignalName.Timeout, Callable.From(SendRoutineEnded));
     public void SendRoutineEnded() => SendPacket(new RoutineFinishedPacket(CurrentRoutineName));

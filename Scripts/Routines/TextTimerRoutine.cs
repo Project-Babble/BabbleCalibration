@@ -10,6 +10,9 @@ public class TextTimerRoutine : RoutineBase
     public LabelTimerRoutineInterface Interface;
 
     private bool _finished;
+    private bool _playSounds;
+    public override bool PlaySounds => _playSounds;
+
     public override void Initialize(IBackend backend, Dictionary args = null)
     {
         base.Initialize(backend, args);
@@ -28,6 +31,8 @@ public class TextTimerRoutine : RoutineBase
                 transform = value.AsTransform3D();
             if (args.TryGetValue("time", out value) && value.VariantType is Variant.Type.Float)
                 time = value.AsSingle();
+            if (args.TryGetValue("sounds", out value) && value.VariantType is Variant.Type.Bool)
+                _playSounds = value.AsBool();
             
             
             (var element, Interface) = this.Load<LabelTimerRoutineInterface>("res://Scenes/Routines/TextTimerRoutine.tscn", head);
