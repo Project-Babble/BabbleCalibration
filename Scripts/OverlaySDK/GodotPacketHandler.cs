@@ -50,4 +50,10 @@ public class GodotPacketHandler : PacketHandlerAdapter
             if (main.CurrentRoutine is GraphRoutine graph) graph.Handle(progressReport);
         }).CallDeferred();
     }
+
+    public override void OnTermination()
+    {
+        base.OnTermination();
+        MainScene.Instance.GetTree().Quit();
+    }
 }
