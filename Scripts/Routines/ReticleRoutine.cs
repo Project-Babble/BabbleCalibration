@@ -72,7 +72,7 @@ public class ReticleRoutine : RoutineBase
             
             //DebugDraw3D.DrawLine(headTransform.Origin, endPoint);
 
-            return (Mathf.RadToDeg(euler.X), Mathf.RadToDeg(euler.Y), length);
+            return (-Mathf.RadToDeg(euler.X), Mathf.RadToDeg(euler.Y), length);
         }
     }
 }
