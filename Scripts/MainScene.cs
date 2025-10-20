@@ -100,11 +100,15 @@ public partial class MainScene : Node
             Task.Run(async () =>
             {
                 await Task.Delay(1000);
-                //test.SendPacket(new RunFixedLenghtRoutinePacket("debug"));
-                test.SendPacket(new RunVariableLenghtRoutinePacket("convergencetutorial", TimeSpan.FromSeconds(5)));
+                //test.SendPacket(new RunFixedLenghtRoutinePacket("gazetutorial"));
+                test.SendPacket(new RunVariableLenghtRoutinePacket("gaze", TimeSpan.FromSeconds(5)));
                 await Task.Delay(5000);
-                test.SendPacket(new RunVariableLenghtRoutinePacket("convergence", TimeSpan.FromSeconds(20)));
-                await Task.Delay(20000);
+                test.SendPacket(new RunVariableLenghtRoutinePacket("convergence", TimeSpan.FromSeconds(5)));
+                //test.SendPacket(new RunFixedLenghtRoutinePacket("debug"));
+                //test.SendPacket(new RunVariableLenghtRoutinePacket("convergencetutorial", TimeSpan.FromSeconds(5)));
+                //await Task.Delay(5000);
+                //test.SendPacket(new RunVariableLenghtRoutinePacket("convergence", TimeSpan.FromSeconds(20)));
+                //await Task.Delay(20000);
             });
         }
         else
@@ -194,6 +198,9 @@ public partial class MainScene : Node
                 StartRoutine<VideoRoutine>(RoutineHelpers.FilePathRoutineArgs("res://Assets/BabbleCalibration.ogv",
                     Tr(GazeTutorialString), true,
                     Transform3D.Identity.TranslatedLocal(Vector3.Forward)));
+                CurrentRoutine.CreateProgressCircle(9999999999, false,
+                    Transform3D.Identity.TranslatedLocal(Vector3.Forward * 2 +
+                                                         (Vector3.Up * Backend.HeadTransform().Origin.Y)));
                 break;
             case "gazetutorialshort":
                 StartTextTimerRoutine(Tr(GazeTutorialShortString));

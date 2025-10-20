@@ -22,10 +22,14 @@ public static class BackendHelpers
     public static (ElementBase Element, ProgressCircle Interface) CreateProgressCircle(this RoutineBase rout, float time, bool head = false, Transform3D? transform = null)
     {
         var interf = RoutineBase.LoadScene<ProgressCircle>("res://Scenes/Routines/ProgressCircle.tscn");
+        /*
         interf.Time = time;
         interf.AutoStart = true;
+        */
         var elem = rout.Backend.CreateElementWithObject(interf, head);
         elem.ElementTransform = transform ?? (head ? Transform3D.Identity.TranslatedLocal(Vector3.Forward) : Transform3D.Identity.TranslatedLocal(Vector3.Forward + Vector3.Up));
+        elem.ElementWidth = 0.075f;
+        interf.Start(time);
         return (elem, interf);
     }
 
