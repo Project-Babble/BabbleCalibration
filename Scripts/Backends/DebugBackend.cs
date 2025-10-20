@@ -39,7 +39,7 @@ public partial class DebugBackend : Node, IBackend
         _currentRotation = _currentRotation with { Y = Mathf.Clamp(_currentRotation.Y, -Mathf.Pi / 2, Mathf.Pi / 2) };
 
         Camera.Transform = new Transform3D(Basis.FromEuler(new Vector3(_currentRotation.Y, _currentRotation.X, 0)),
-            (Vector3.Up * 1.8f) + Vector3.Left);
+            (Vector3.Up * 1.8f));
     }
 
     public ElementBase CreateHeadElement()
