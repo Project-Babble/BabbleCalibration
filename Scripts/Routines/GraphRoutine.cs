@@ -13,14 +13,15 @@ namespace BabbleCalibration.Scripts.Routines;
 public partial class GraphRoutine : RoutineBase
 {
     private GraphRoutineInterface _interface;
-    private Stopwatch _stopwatch = new();
-    private List<Vector2> _points = new();
+    private readonly Stopwatch _stopwatch = new();
+    private readonly List<Vector2> _points = [];
 
-    public int EpochCount = -1;
-    public int BatchCount = -1;
+    private int _epochCount = -1;
+    private int _batchCount = -1;
+
+    private int _epochCurrent = -1;
+    private int _batchCurrent = -1;
     
-    public int EpochCurrent = -1;
-    public int BatchCurrent = -1;
     public override void Initialize(IBackend backend, Dictionary args = null)
     {
         base.Initialize(backend, args);
@@ -45,13 +46,13 @@ public partial class GraphRoutine : RoutineBase
 
         if (isEpoch)
         {
-            EpochCount = packet.TargetProgress;
-            EpochCurrent = packet.CurrentProgress;
+            _epochCount = packet.TargetProgress;
+            _epochCurrent = packet.CurrentProgress;
         }
         else
         {
-            BatchCount = packet.TargetProgress;
-            BatchCurrent = packet.CurrentProgress;
+            _batchCount = packet.TargetProgress;
+            _batchCurrent = packet.CurrentProgress;
         }
         var currentTime = (float)_stopwatch.Elapsed.TotalSeconds;
 
@@ -59,17 +60,19 @@ public partial class GraphRoutine : RoutineBase
         _interface.Graph.Points = _points.Count > 32 ? _points.TakeLast(32).ToArray() : _points.ToArray();
         _interface.Graph.QueueRedraw();
 
-        if (EpochCount >= 0 && BatchCount >= 0 && EpochCurrent + BatchCurrent > 0)
-        {
-            var totalBatchCount = EpochCount * BatchCount;
-            var completedBatches = (EpochCurrent * BatchCount) + BatchCurrent;
+        if (_epochCount < 0 || _batchCount < 0 || _epochCurrent + _batchCurrent <= 0) return;
+        
+        var totalBatchCount = _epochCount * _batchCount;
+        var completedBatches = (_epochCurrent * _batchCount) + _batchCurrent;
 
-            var progress = (float)completedBatches / totalBatchCount;
-            var remaining = 1 - progress;
-            var multiplier = remaining / progress;
+        var progress = (float)completedBatches / totalBatchCount;
+        var remaining = 1f - progress;
+        var multiplier = remaining / progress;
 
-            var eta = currentTime * multiplier;
-            _interface.TimeText.Text = $"ETA: {TimeSpan.FromSeconds(eta):g}";
-        }
+        var eta = currentTime * multiplier;
+        
+        if (eta <= 0f) return;
+        
+        _interface.TimeText.Text = $"ETA: {TimeSpan.FromSeconds(eta):m\\:ss}";
     }
 }
