@@ -20,9 +20,39 @@ public partial class GraphControl : Control
     [Export] public bool ShowHorizontalText = true;
     [Export] public bool ShowVerticalText = true;
     [Export(PropertyHint.Range, "0, 10")] public Vector2I TextInterval = Vector2I.Zero;
+
+    [Export]
+    public bool Normalize
+    {
+        get;
+        set
+        {
+            field = value;
+            NotifyPropertyListChanged();
+            QueueRedraw();
+        }
+    }
+
+    [Export]
+    public Vector2 RangeMinMax
+    {
+        get;
+        set
+        {
+            field = value;
+            QueueRedraw();
+        }
+    } = new(0, 1);
     
     [ExportToolButton("Redraw")] 
     private Callable RedrawButton => Callable.From(QueueRedraw);
+
+    public override void _ValidateProperty(Dictionary property)
+    {
+        base._ValidateProperty(property);
+        if (property["name"].AsStringName() == PropertyName.RangeMinMax && Normalize)
+            property["usage"] = (int)(PropertyUsageFlags.Default & ~PropertyUsageFlags.Editor);
+    }
 
     public override void _Draw()
     {
@@ -40,8 +70,8 @@ public partial class GraphControl : Control
             var pointMinPosition = Points.Select(i => i.X).Min();
             var pointMaxPosition = Points.Select(i => i.X).Max();
         
-            var pointMinValue = Points.Select(i => i.Y).Min();
-            var pointMaxValue = Points.Select(i => i.Y).Max();
+            var pointMinValue = Normalize ? Points.Select(i => i.Y).Min() : RangeMinMax.X;
+            var pointMaxValue = Normalize ? Points.Select(i => i.Y).Max() : RangeMinMax.Y;
 
             var interval = 0;
 

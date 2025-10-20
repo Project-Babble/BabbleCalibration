@@ -58,6 +58,7 @@ text = "ETA: ???"
 horizontal_alignment = 1
 
 [node name="GraphDraw" type="Control" parent="MarginContainer/VBoxContainer"]
+clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("1_n40uw")
