@@ -10,6 +10,7 @@ namespace BabbleCalibration.Scripts.Routines;
 public class ConvergenceRoutine : ReticleRoutine
 {
     private float _currentTime;
+    protected override bool SpeedCheck => false;
     private static float InOut(float t, float b, float c, float d) => -c / 2 * (Mathf.Cos(Mathf.Pi * t / d) - 1) + b;
     
     public override void Initialize(IBackend backend, Dictionary args = null)

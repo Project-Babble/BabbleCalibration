@@ -27,6 +27,7 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_4utdt")
 script = ExtResource("1_dv882")
 _shaderMaterial = SubResource("ShaderMaterial_dv882")
 Timer = NodePath("Timer")
+CenterColor = Color(1, 1, 1, 1)
 
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="."]
 layout_mode = 2

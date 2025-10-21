@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BabbleCalibration.Scripts.Elements;
 using BabbleCalibration.Scripts.RoutineInterfaces;
 using Godot;
@@ -13,6 +14,15 @@ public class ReticleRoutine : RoutineBase
     protected float Height;
     protected Transform3D Transform = Transform3D.Identity;
     protected ElementBase Element;
+    protected ProgressCircle Interface;
+
+    protected LabelRoutineInterface Text;
+    protected Quaternion PreviousHeadRotation = Quaternion.Identity;
+    protected float Speed;
+
+    protected virtual bool SpeedCheck => true;
+    private bool _tooFast;
+    
     public override void Initialize(IBackend backend, Dictionary args = null)
     {
         base.Initialize(backend, args);
@@ -28,11 +38,16 @@ public class ReticleRoutine : RoutineBase
         if (args.TryGetValue("time", out var value) && value.VariantType is Variant.Type.Float) 
             time = value.AsSingle();
 
-        (Element, var interf) = this.CreateProgressCircle(time, false, Transform);
-            
-        MainScene.Instance.TimerEndConnect(interf.Timer);
-    }
+        (Element, Interface) = this.CreateProgressCircle(time, false, Transform);
 
+        (var textElem, Text) = this.Load<LabelRoutineInterface>("res://Scenes/Routines/TextRoutine.tscn", true);
+        textElem.ElementTransform = Transform3D.Identity.TranslatedLocal(Vector3.Forward);
+        Text.Label.Text = "";
+            
+        MainScene.Instance.TimerEndConnect(Interface.Timer);
+    }
+    private static float Damp(float a, float b, float lambda, float dt) => Mathf.Lerp(a, b, 1 - Mathf.Exp(-lambda * dt));
+    private static readonly StringName SlowDownString = "SlowDown";
     public override void Update(float delta)
     {
         base.Update(delta);
@@ -40,6 +55,31 @@ public class ReticleRoutine : RoutineBase
         var packet = new HmdPositionalDataPacket();
 
         var headTransform = Backend.HeadTransform();
+
+        if (SpeedCheck)
+        {
+            var currentRotation = headTransform.Basis.GetRotationQuaternion();
+            var rotationDelta = PreviousHeadRotation.Inverse() * currentRotation;
+            var diff = rotationDelta.AngleTo(Quaternion.Identity);
+            var currentSpeed = diff / delta;
+            PreviousHeadRotation = currentRotation;
+            Speed = Damp(Speed, currentSpeed, 2, delta);
+        
+            if (Speed > 2)
+            {
+                if (_tooFast) return;
+                Text.Label.Text = TranslationServer.Translate(SlowDownString);
+                Interface.CenterColor = Colors.Red;
+                _tooFast = true;
+                return;
+            }
+            if (_tooFast)
+            {
+                Text.Label.Text = "";
+                Interface.CenterColor = Colors.White;
+                _tooFast = false;
+            }
+        }
         var leftEye = Backend.EyeTransform(true);
         var rightEye = Backend.EyeTransform(false);
 

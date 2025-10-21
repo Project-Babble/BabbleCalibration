@@ -12,7 +12,7 @@ public partial class DebugBackend : Node, IBackend
     private Window _window;
     private Vector2 _mouseMovement;
 
-    private Vector2 CameraMovement => _mouseMovement * Mathf.Pi * 5;
+    private Vector2 CameraMovement => _mouseMovement * Mathf.Pi * 2;
     
     public Node Self => this;
     public bool IsOverlay => false;

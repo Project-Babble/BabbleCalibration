@@ -10,6 +10,13 @@ public partial class ProgressCircle : PanelContainer
     [ExportGroup("Internal")]
     [Export] private ShaderMaterial _shaderMaterial;
     [Export] public Timer Timer { get; private set; }
+    
+    public Color CenterColor
+    {
+        get => _shaderMaterial.GetShaderParameter(CenterColorString).AsColor();
+        set => _shaderMaterial.SetShaderParameter(CenterColorString, value);
+    }
+    private static readonly StringName CenterColorString = "CenterColor";
 
     private static readonly StringName ProgressParam = "Progress";
 
