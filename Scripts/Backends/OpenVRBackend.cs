@@ -28,15 +28,15 @@ public partial class OpenVRBackend : Node, IBackend
         _interface = xrInt;
     }
 
-    public ElementBase CreateHeadElement()
+    public ElementBase CreateHeadElement(bool persistent = false)
     {
-        var elem = CreateElement();
+        var elem = CreateElement(persistent);
         elem.HeadMode = true;
         return elem;
     }
-    public ElementBase CreateWorldElement()
+    public ElementBase CreateWorldElement(bool persistent = false)
     {
-        var elem = CreateElement();
+        var elem = CreateElement(persistent);
         return elem;
     }
 
@@ -60,9 +60,9 @@ public partial class OpenVRBackend : Node, IBackend
         return new Transform3D(head.Basis, eyeBall.Origin);
     }
 
-    private OpenVRElement CreateElement()
+    private OpenVRElement CreateElement(bool persistent = false)
     {
-        if (_storedPool.TryPop(out var result))
+        if (!persistent && _storedPool.TryPop(out var result))
         {
             _usedPool.Add(result);
             result.Visible = true;
@@ -71,7 +71,7 @@ public partial class OpenVRBackend : Node, IBackend
         result = ResourceLoader.Load<PackedScene>("res://Scenes/Elements/OpenVRElement.tscn")
             .Instantiate<OpenVRElement>();
         ElementRoot.AddChild(result);
-        _usedPool.Add(result);
+        if (!persistent) _usedPool.Add(result);
         return result;
     }
 }

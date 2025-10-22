@@ -27,12 +27,12 @@ public interface IBackend
     /// Create an element, attached to the head. Doesn't require parenting.
     /// </summary>
     /// <returns>The created element</returns>
-    public abstract ElementBase CreateHeadElement();
+    public abstract ElementBase CreateHeadElement(bool persistent = false);
     /// <summary>
     /// Create an element in free space. Doesn't require parenting.
     /// </summary>
     /// <returns>The created element</returns>
-    public abstract ElementBase CreateWorldElement();
+    public abstract ElementBase CreateWorldElement(bool persistent = false);
     /// <summary>
     /// Clears all elements
     /// </summary>

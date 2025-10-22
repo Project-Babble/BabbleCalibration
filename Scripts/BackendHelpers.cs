@@ -5,9 +5,9 @@ namespace BabbleCalibration.Scripts;
 
 public static class BackendHelpers
 {
-    public static ElementBase CreateElementWithObject(this IBackend backend, Control obj, bool head = false)
+    public static ElementBase CreateElementWithObject(this IBackend backend, Control obj, bool head = false, bool persistent = false)
     {
-        var elem = head ? backend.CreateHeadElement() : backend.CreateWorldElement();
+        var elem = head ? backend.CreateHeadElement(persistent) : backend.CreateWorldElement(persistent);
         elem.Root.AddChild(obj);
         return elem;
     }

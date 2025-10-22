@@ -16,12 +16,12 @@ public partial class OpenXROverlayBackend : Node, IBackend
         throw new System.NotImplementedException();
     }
 
-    public ElementBase CreateHeadElement()
+    public ElementBase CreateHeadElement(bool persistent = false)
     {
         throw new System.NotImplementedException();
     }
 
-    public ElementBase CreateWorldElement()
+    public ElementBase CreateWorldElement(bool persistent = false)
     {
         throw new System.NotImplementedException();
     }

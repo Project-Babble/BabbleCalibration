@@ -8,6 +8,7 @@ public partial class OpenXRElement : ElementBase
     [Export] public MeshInstance3D Mesh;
     [Export] public PlaneMesh PlaneMesh;
     [Export] public Node3D Head;
+    [Export] public bool IsInternal = false;
 
     public override Transform3D ElementTransform
     {

@@ -1,3 +1,4 @@
+using System.Linq;
 using BabbleCalibration.Scripts.Elements;
 using Godot;
 
@@ -42,22 +43,31 @@ public partial class DebugBackend : Node, IBackend
             (Vector3.Up * 1.8f));
     }
 
-    public ElementBase CreateHeadElement()
+    public ElementBase CreateHeadElement(bool persistent = false)
     {
         var elem = OpenXRElement.CreateElement();
         elem.Head = Camera;
+        elem.IsInternal = persistent;
         ElementRoot.AddChild(elem);
         return elem;
     }
 
-    public ElementBase CreateWorldElement()
+    public ElementBase CreateWorldElement(bool persistent = false)
     {
         var elem = OpenXRElement.CreateElement();
+        elem.IsInternal = persistent;
         ElementRoot.AddChild(elem);
         return elem;
     }
 
-    public void ClearElements() => BackendHelpers.ClearAllChildren(ElementRoot);
+    public void ClearElements()
+    {
+        foreach (var c in ElementRoot.GetChildren().OfType<OpenXRElement>().Where(i => !i.IsInternal))
+        {
+            ElementRoot.RemoveChild(c);
+            c.QueueFree();
+        }
+    }
     public Transform3D HeadTransform() => Camera.GlobalTransform;
     public Transform3D EyeTransform(bool left) => Camera.GlobalTransform.TranslatedLocal((left ? Vector3.Left : Vector3.Right) * 0.035f);
 }

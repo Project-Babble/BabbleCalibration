@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BabbleCalibration.Scripts;
 using BabbleCalibration.Scripts.Backends;
+using BabbleCalibration.Scripts.Elements;
 using BabbleCalibration.Scripts.Routines;
 using Godot.Collections;
 using OverlaySDK;
@@ -149,6 +150,12 @@ public partial class MainScene : Node
         
         Backend.Initialize();
         
+        var elem = Backend.CreateElementWithObject(ResourceLoader.Load<PackedScene>("res://Scenes/Routines/FloorIndicator.tscn").Instantiate<PanelContainer>(), persistent: true);
+        elem.ElementTransform = OriginOffset * new Transform3D(new Basis(new Quaternion(Vector3.Forward, Vector3.Down)), Vector3.Up * 0.001f);
+        elem.ElementWidth = 1.25f;
+        
+        if (elem is OpenXRElement openXrElement) GD.Print(openXrElement.IsInternal);
+        
         StartRoutine<TextRoutine>(RoutineHelpers.LabelRoutineArgs(Tr(ConnectingString), true, Transform3D.Identity.TranslatedLocal(Vector3.Forward)));
 
         /*Task.Run(async () =>
@@ -288,9 +295,5 @@ public partial class MainScene : Node
         Backend.ClearElements();
         CurrentRoutine = new T();
         CurrentRoutine.Initialize(Backend, args);
-
-        var elem = Backend.CreateElementWithObject(ResourceLoader.Load<PackedScene>("res://Scenes/Routines/FloorIndicator.tscn").Instantiate<PanelContainer>());
-        elem.ElementTransform = OriginOffset * new Transform3D(new Basis(new Quaternion(Vector3.Forward, Vector3.Down)), Vector3.Up * 0.001f);
-        elem.ElementWidth = 1.5f;
     }
 }
