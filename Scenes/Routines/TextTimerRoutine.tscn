@@ -25,3 +25,4 @@ vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="Timer" type="Timer" parent="."]
+one_shot = true
