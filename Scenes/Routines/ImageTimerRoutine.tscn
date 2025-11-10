@@ -1,0 +1,40 @@
+[gd_scene load_steps=4 format=3 uid="uid://trdabux8akgm"]
+
+[ext_resource type="Script" uid="uid://eje8f5v6m6oq" path="res://Scripts/RoutineInterfaces/TextureTimerRoutineInterface.cs" id="1_bp2kj"]
+[ext_resource type="Texture2D" uid="uid://dr62olptxadt4" path="res://Assets/PlaceholderTexture.tres" id="2_0oqch"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k8axn"]
+
+[node name="ImageTimerRoutine" type="PanelContainer" node_paths=PackedStringArray("Label", "TextureRect", "Timer")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_k8axn")
+script = ExtResource("1_bp2kj")
+Label = NodePath("VBoxContainer/Label")
+TextureRect = NodePath("VBoxContainer/TextureRect")
+Timer = NodePath("Timer")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("2_0oqch")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "placeholder"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Timer" type="Timer" parent="."]
+one_shot = true

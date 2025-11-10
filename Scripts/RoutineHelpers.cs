@@ -16,14 +16,28 @@ public static class RoutineHelpers
         };
     }
     
-    public static Dictionary FilePathRoutineArgs(string filePath, string text, bool head = false, Transform3D? transform = null)
+    public static Dictionary FilePathRoutineArgs(string filePath, string text, bool head = false, Transform3D? transform = null, bool sounds = false)
     {
         return new Dictionary
         {
             {"path", filePath },
             {"text", text },
             {"head", head },
-            {"transform", transform ?? Transform3D.Identity.TranslatedLocal(Vector3.Forward + Vector3.Up) }
+            {"transform", transform ?? Transform3D.Identity.TranslatedLocal(Vector3.Forward + Vector3.Up) },
+            {"sounds", sounds },
+        };
+    }
+    
+    public static Dictionary FilePathTimeRoutineArgs(string filePath, string text, float time, bool head = false, Transform3D? transform = null, bool sounds = false)
+    {
+        return new Dictionary
+        {
+            {"path", filePath },
+            {"text", text },
+            {"head", head },
+            {"time", time },
+            {"transform", transform ?? Transform3D.Identity.TranslatedLocal(Vector3.Forward + Vector3.Up) },
+            {"sounds", sounds },
         };
     }
     
@@ -35,15 +49,16 @@ public static class RoutineHelpers
             {"head", head },
             {"transform", transform ?? Transform3D.Identity.TranslatedLocal(Vector3.Forward + Vector3.Up) },
             {"time", time },
-            {"sounds", sounds }
+            {"sounds", sounds },
         };
     }
     
-    public static Dictionary TimeArgs(float time)
+    public static Dictionary TimeArgs(float time, bool sounds = false)
     {
         return new Dictionary
         {
             {"time", time },
+            {"sounds", sounds },
         };
     }
 }

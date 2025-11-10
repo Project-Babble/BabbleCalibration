@@ -103,7 +103,7 @@ public partial class MainScene : Node
                 await Task.Delay(1000);
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("dilation"));
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("gazetutorial"));
-                test.SendPacket(new RunVariableLenghtRoutinePacket("gaze", TimeSpan.FromSeconds(30)));
+                test.SendPacket(new RunVariableLenghtRoutinePacket("debug1", TimeSpan.FromSeconds(30)));
                 //await Task.Delay(5000);
                 //test.SendPacket(new RunVariableLenghtRoutinePacket("convergence", TimeSpan.FromSeconds(5)));
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("debug"));
@@ -197,9 +197,30 @@ public partial class MainScene : Node
     
     private static readonly StringName BrowTutorialString = "BrowTutorial";
     private static readonly StringName BrowRoutineString = "BrowRoutine";
-    
+
+    private static readonly System.Collections.Generic.Dictionary<string, (StringName text, bool sounds)> TextTimerRoutines = new()
+    {
+        { "gazetutorialshort", (GazeTutorialShortString, false) },
+        { "blinktutorial", (BlinkTutorialString, false) },
+        { "blink", (BlinkRoutineString, true) },
+        { "dilationtutorial", (DilationTutorialString, false) },
+        { "widentutorial", (WidenTutorialString, false) },
+        { "widen", (WidenRoutineString, true) },
+        { "squinttutorial", (SquintTutorialString, false) },
+        { "squint", (SquintRoutineString, true) },
+        { "browtutorial", (BrowTutorialString, false) },
+        { "brow", (BrowRoutineString, true) },
+        { "convergencetutorial", (ConvergenceTutorialString, false) },
+    };
     public void StartRoutine(string name, float time = 0)
     {
+        if (TextTimerRoutines.TryGetValue(name, out var info))
+        {
+            StartRoutine<TextTimerRoutine>(RoutineHelpers.LabelTimerRoutineArgs(Tr(info.text),
+                time, true, Transform3D.Identity.TranslatedLocal(Vector3.Forward), info.sounds));
+            CurrentRoutineName = name;
+            return;
+        }
         switch (name)
         {
             case "gazetutorial":
@@ -210,44 +231,11 @@ public partial class MainScene : Node
                     Transform3D.Identity.TranslatedLocal(Vector3.Forward * 2 +
                                                          (Vector3.Up * Backend.HeadTransform().Origin.Y)));
                 break;
-            case "gazetutorialshort":
-                StartTextTimerRoutine(Tr(GazeTutorialShortString));
-                break;
             case "gaze":
                 StartRoutine<ReticleRoutine>(RoutineHelpers.TimeArgs(time));
                 break;
-            case "blinktutorial":
-                StartTextTimerRoutine(Tr(BlinkTutorialString));
-                break;
-            case "blink":
-                StartTextTimerRoutine(Tr(BlinkRoutineString), true);
-                break;
-            case "dilationtutorial":
-                StartTextTimerRoutine(Tr(DilationTutorialString));
-                break;
             case "dilation":
                 StartRoutine<DilationRoutine>();
-                break;
-            case "widentutorial":
-                StartTextTimerRoutine(Tr(WidenTutorialString));
-                break;
-            case "widen":
-                StartTextTimerRoutine(Tr(WidenRoutineString), true);
-                break;
-            case "squinttutorial":
-                StartTextTimerRoutine(Tr(SquintTutorialString));
-                break;
-            case "squint":
-                StartTextTimerRoutine(Tr(SquintRoutineString), true);
-                break;
-            case "browtutorial":
-                StartTextTimerRoutine(Tr(BrowTutorialString));
-                break;
-            case "brow":
-                StartTextTimerRoutine(Tr(BrowRoutineString), true);
-                break;
-            case "convergencetutorial":
-                StartTextTimerRoutine(Tr(ConvergenceTutorialString));
                 break;
             case "convergence":
                 StartRoutine<ConvergenceRoutine>(RoutineHelpers.TimeArgs(time));
@@ -261,15 +249,12 @@ public partial class MainScene : Node
             case "debug":
                 StartRoutine<DebugRoutine>();
                 break;
+            case "debug1":
+                StartRoutine<ImageTimerRoutine>(RoutineHelpers.FilePathTimeRoutineArgs("blah", "blah {0}", time, sounds: true));
+                break;
         }
         
         CurrentRoutineName = name;
-
-        return;
-        
-        void StartTextTimerRoutine(string text, bool sounds = false) =>
-            StartRoutine<TextTimerRoutine>(RoutineHelpers.LabelTimerRoutineArgs(text,
-                time, true, Transform3D.Identity.TranslatedLocal(Vector3.Forward), sounds));
     }
     public void TimerEndConnect(Timer timer) => timer.Connect(Timer.SignalName.Timeout, Callable.From(SendRoutineEnded));
     public void SendRoutineEnded() => SendPacket(new RoutineFinishedPacket(CurrentRoutineName));
