@@ -54,6 +54,12 @@ jobs:
           name: "Linux"
           path: ${{ steps.export.outputs.build_directory }}/Linux/*
           
+      - name: Upload Linux-ARM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "Linux-ARM"
+          path: ${{ steps.export.outputs.build_directory }}/Linux-ARM/*
+          
       - name: Publish release
         if: ${{ github.event.inputs.publish-release == 'true' }}
         uses: softprops/action-gh-release@v2
@@ -61,5 +67,6 @@ jobs:
           files: |
               ${{ steps.export.outputs.archive_directory }}/Windows.zip
               ${{ steps.export.outputs.archive_directory }}/Linux.zip
+              ${{ steps.export.outputs.archive_directory }}/Linux-ARM.zip
           tag_name: ${{ github.event.inputs.version-number }}
           prerelease: ${{ github.event.inputs.publish-pre-release }}
