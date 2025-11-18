@@ -19,6 +19,7 @@ Timer = NodePath("Timer")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 2
+theme_override_font_sizes/font_size = 32
 text = "placeholder"
 horizontal_alignment = 1
 vertical_alignment = 1

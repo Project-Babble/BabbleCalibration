@@ -28,7 +28,8 @@ public partial class GraphRoutine : RoutineBase
         
         _stopwatch.Start();
         (var element, _interface) = this.Load<GraphRoutineInterface>("res://Scenes/Routines/GraphRoutine.tscn", true);
-        element.ElementTransform = Transform3D.Identity.TranslatedLocal(Vector3.Forward + (Vector3.Down * 0.25f));
+        element.ElementTransform = Transform3D.Identity.TranslatedLocal(Vector3.Forward + (Vector3.Down * 0.5f));
+        element.ElementWidth = 0.75f;
     }
 
     public void Handle(TrainerProgressReportPacket packet)
