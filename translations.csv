@@ -3,13 +3,14 @@ GazeTutorial,"In {0} seconds, look at the reticle while moving your head as show
 GazeTutorialShort,"In {0} seconds, look at the reticle while moving your head around"
 BlinkTutorial,"In {0} seconds, close your eyes and keep them closed until the finishing tone plays"
 BlinkRoutine,Keep your eyes closed! {0} seconds left
-DilationTutorial,"In {0} seconds, look straight forward"
-WidenTutorial,"In {0} seconds, open your eyes wide and look straight forward"
-WidenRoutine,Keep your eyes wide open and straight forward for {0} more seconds
+DilationTutorial,"In {0} seconds, look around"
+WidenTutorial,"In {0} seconds, open your eyes wide and look around"
+WidenRoutine,Keep your eyes wide open for {0} more seconds
 ConvergenceTutorial,"In {0} seconds, look at the reticle while it moves back and forth"
 Connecting,Connecting to Baballonia…
-SquintTutorial,"In {0} seconds, squint your eyes (half closed) while looking straight forward"
-SquintRoutine,Keep your eyes half closed/squinting and straight forward for {0} more seconds
-BrowTutorial,"In {0} seconds, move your eyebrows as if you were making an angry face, looking straight forward"
-BrowRoutine,Keep looking forward with angry eyebrows for {0} more seconds
+SquintTutorial,"In {0} seconds, squint your eyes (half closed) while looking around"
+SquintRoutine,Keep your eyes half closed/squinting for {0} more seconds
+BrowTutorial,"In {0} seconds, move your eyebrows as if you were making an angry face, looking around"
+BrowRoutine,Keep looking around with angry eyebrows for {0} more seconds
 SlowDown,Slow down! Too fast!
+,
