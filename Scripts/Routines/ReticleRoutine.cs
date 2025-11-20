@@ -100,7 +100,7 @@ public class ReticleRoutine : RoutineBase
 
             var length = transform.Origin.DistanceTo(Transform.Origin);
 
-            return (-Mathf.RadToDeg(euler.X), Mathf.RadToDeg(euler.Y), length);
+            return (Mathf.RadToDeg(euler.X), -Mathf.RadToDeg(euler.Y), length);
         }
     }
 }
