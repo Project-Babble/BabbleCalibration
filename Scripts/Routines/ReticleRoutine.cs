@@ -100,7 +100,12 @@ public class ReticleRoutine : RoutineBase
 
             var length = transform.Origin.DistanceTo(Transform.Origin);
 
-            return (Mathf.RadToDeg(euler.X), -Mathf.RadToDeg(euler.Y), length);
+            //STOP TOUCHING THIS
+            //DO NOT TOUCH THIS
+            //DONT
+            //DO IT IN BABALLONIA
+            //DO NOT TOUCH THIS
+            return (Mathf.RadToDeg(euler.X), Mathf.RadToDeg(euler.Y), length);
         }
     }
 }
