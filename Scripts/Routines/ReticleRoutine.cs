@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using BabbleCalibration.Scripts.Elements;
 using BabbleCalibration.Scripts.RoutineInterfaces;
 using Godot;
 using Godot.Collections;
-using GodotPlugins.Game;
 using OverlaySDK.Packets;
 
 namespace BabbleCalibration.Scripts.Routines;
