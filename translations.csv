@@ -1,16 +1,16 @@
-keys,en
-GazeTutorial,"In {0} seconds, look at the reticle while moving your head as shown in the video"
-GazeTutorialShort,"In {0} seconds, look at the reticle while moving your head around"
-BlinkTutorial,"In {0} seconds, close your eyes and keep them closed until the finishing tone plays"
-BlinkRoutine,Keep your eyes closed! {0} seconds left
-DilationTutorial,"In {0} seconds, look around"
-WidenTutorial,"In {0} seconds, open your eyes wide and look around"
-WidenRoutine,Keep your eyes wide open for {0} more seconds
-ConvergenceTutorial,"In {0} seconds, look at the reticle while it moves back and forth"
-Connecting,Connecting to Baballonia…
-SquintTutorial,"In {0} seconds, squint your eyes (half closed) while looking around"
-SquintRoutine,Keep your eyes half closed/squinting for {0} more seconds
-BrowTutorial,"In {0} seconds, move your eyebrows as if you were making an angry face, looking around"
-BrowRoutine,Keep looking around with angry eyebrows for {0} more seconds
-SlowDown,Slow down! Too fast!
-,
+keys,en,es
+GazeTutorial,"In {0} seconds, look at the reticle while moving your head as shown in the video","En {0} segundos, mira el retículo mientras mueves la cabeza como se muestra en el video"
+GazeTutorialShort,"In {0} seconds, look at the reticle while moving your head around","En {0} segundos, mira el retículo mientras mueves la cabeza"
+BlinkTutorial,"In {0} seconds, close your eyes and keep them closed until the finishing tone plays","En {0} segundos, cierra los ojos y mantenlos cerrados hasta que suene el tono final"
+BlinkRoutine,Keep your eyes closed! {0} seconds left,¡Mantén los ojos cerrados! Quedan {0} segundos
+DilationTutorial,"In {0} seconds, look around","En {0} segundos, mira alrededor"
+WidenTutorial,"In {0} seconds, open your eyes wide and look around","En {0} segundos, abre los ojos bien grandes y mira alrededor"
+WidenRoutine,Keep your eyes wide open for {0} more seconds,Mantén los ojos bien abiertos por {0} segundos más
+ConvergenceTutorial,"In {0} seconds, look at the reticle while it moves back and forth","En {0} segundos, mira el retículo mientras se mueve hacia adelante y hacia atrás"
+Connecting,Connecting to Baballonia…,Conectando a Baballonia…
+SquintTutorial,"In {0} seconds, squint your eyes (half closed) while looking around","En {0} segundos, entrecierra los ojos (medio cerrados) mientras miras alrededor"
+SquintRoutine,Keep your eyes half closed/squinting for {0} more seconds,Mantén los ojos medio cerrados/entrecerrados por {0} segundos más
+BrowTutorial,"In {0} seconds, move your eyebrows as if you were making an angry face, looking around","En {0} segundos, mueve las cejas como si estuvieras haciendo una cara de enojo, mirando alrededor"
+BrowRoutine,Keep looking around with angry eyebrows for {0} more seconds,Sigue mirando alrededor con las cejas fruncidas por {0} segundos más
+SlowDown,Slow down! Too fast!,¡Más despacio! ¡Demasiado rápido!
+,,

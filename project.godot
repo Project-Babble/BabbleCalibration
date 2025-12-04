@@ -47,7 +47,7 @@ theme/custom_font="uid://bfsw0mbxfwltq"
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://translations.en.translation")
+locale/translations=PackedStringArray("res://translations.en.translation", "res://translations.es.translation")
 
 [rendering]
 
