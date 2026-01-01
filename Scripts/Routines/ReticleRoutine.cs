@@ -20,6 +20,8 @@ public class ReticleRoutine : RoutineBase
 
     protected virtual bool SpeedCheck => true;
     private bool _tooFast;
+    private bool _tooSlow;
+    private float _slowTimer;
     
     public override void Initialize(IBackend backend, Dictionary args = null)
     {
@@ -46,6 +48,7 @@ public class ReticleRoutine : RoutineBase
     }
     private static float Damp(float a, float b, float lambda, float dt) => Mathf.Lerp(a, b, 1 - Mathf.Exp(-lambda * dt));
     private static readonly StringName SlowDownString = "SlowDown";
+    private static readonly StringName SpeedUpString = "SpeedUp";
     public override void Update(float delta)
     {
         base.Update(delta);
@@ -69,6 +72,8 @@ public class ReticleRoutine : RoutineBase
                 Text.Label.Text = TranslationServer.Translate(SlowDownString);
                 Interface.CenterColor = Colors.Red;
                 _tooFast = true;
+                _tooSlow = false;
+                _slowTimer = 0f;
                 return;
             }
             if (_tooFast)
@@ -76,6 +81,32 @@ public class ReticleRoutine : RoutineBase
                 Text.Label.Text = "";
                 Interface.CenterColor = Colors.White;
                 _tooFast = false;
+            }
+            
+            if (Speed < 0.1f)
+            {
+                _slowTimer += delta;
+                
+                if (_slowTimer >= 2) // seconds
+                {
+                    if (!_tooSlow)
+                    {
+                        Text.Label.Text = TranslationServer.Translate(SpeedUpString);
+                        Interface.CenterColor = Colors.Red;
+                        _tooSlow = true;
+                    }
+                    return;
+                }
+            }
+            else
+            {
+                _slowTimer = 0f;
+                if (_tooSlow)
+                {
+                    Text.Label.Text = "";
+                    Interface.CenterColor = Colors.White;
+                    _tooSlow = false;
+                }
             }
         }
         var leftEye = Backend.EyeTransform(true);
@@ -97,12 +128,6 @@ public class ReticleRoutine : RoutineBase
             var euler = lookAt.GetRotationQuaternion().GetEuler();
 
             var length = transform.Origin.DistanceTo(Transform.Origin);
-
-            //STOP TOUCHING THIS
-            //DO NOT TOUCH THIS
-            //DONT
-            //DO IT IN BABALLONIA
-            //DO NOT TOUCH THIS
             return (Mathf.RadToDeg(euler.X), Mathf.RadToDeg(euler.Y), length);
         }
     }
