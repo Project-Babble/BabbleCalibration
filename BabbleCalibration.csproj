@@ -6,6 +6,6 @@
         <LangVersion>preview</LangVersion>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Project-Babble.Baballonia.OverlaySDK" Version="1.0.2-alpha"/>
+        <PackageReference Include="Project-Babble.Baballonia.OverlaySDK" Version="1.0.5-alpha" />
     </ItemGroup>
 </Project>
