@@ -36,8 +36,8 @@ jobs:
         id: export
         uses: firebelley/godot-export@v7.0.0
         with:
-          godot_executable_download_url: https://downloads.godotengine.org/?version=4.5&flavor=stable&slug=mono_linux_x86_64.zip&platform=linux.64
-          godot_export_templates_download_url: https://downloads.godotengine.org/?version=4.5&flavor=stable&slug=mono_export_templates.tpz&platform=templates
+          godot_executable_download_url: https://downloads.godotengine.org/?version=4.6.1&flavor=stable&slug=mono_linux_x86_64.zip&platform=linux.64
+          godot_export_templates_download_url: https://downloads.godotengine.org/?version=4.6.1&flavor=stable&slug=mono_export_templates.tpz&platform=templates
           cache: true
           archive_output: ${{ github.event.inputs.publish-release }}
           relative_project_path: ./
