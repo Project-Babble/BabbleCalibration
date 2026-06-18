@@ -104,7 +104,7 @@ public partial class MainScene : Node
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("dilation"));
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("gazetutorial"));
                 //test.SendPacket(new RunVariableLenghtRoutinePacket("debug1", TimeSpan.FromSeconds(30)));
-                test.SendPacket(new RunFixedLenghtRoutinePacket("trainer"));
+                test.SendPacket(new RunVariableLenghtRoutinePacket("gaze", TimeSpan.FromSeconds(300))); // TEMP-DIAG: was "trainer"
                 //await Task.Delay(5000);
                 //test.SendPacket(new RunVariableLenghtRoutinePacket("convergence", TimeSpan.FromSeconds(5)));
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("debug"));
@@ -182,6 +182,9 @@ public partial class MainScene : Node
     
     private static readonly StringName GazeTutorialString = "GazeTutorial";
     private static readonly StringName GazeTutorialShortString = "GazeTutorialShort";
+
+    private static readonly StringName GazeExprTutorialString = "GazeExprTutorial";
+    private static readonly StringName GazeExprReticleString = "GazeExprReticle";
     
     private static readonly StringName BlinkTutorialString = "BlinkTutorial";
     private static readonly StringName BlinkRoutineString = "BlinkRoutine";
@@ -189,29 +192,29 @@ public partial class MainScene : Node
     private static readonly StringName DilationTutorialString = "DilationTutorial";
     
     private static readonly StringName WidenTutorialString = "WidenTutorial";
-    private static readonly StringName WidenRoutineString = "WidenRoutine";
-    
+    private static readonly StringName WidenReticleString = "WidenReticle";
+
     private static readonly StringName ConvergenceTutorialString = "ConvergenceTutorial";
-    
+
     private static readonly StringName SquintTutorialString = "SquintTutorial";
-    private static readonly StringName SquintRoutineString = "SquintRoutine";
-    
+    private static readonly StringName SquintReticleString = "SquintReticle";
+
     private static readonly StringName BrowTutorialString = "BrowTutorial";
-    private static readonly StringName BrowRoutineString = "BrowRoutine";
+    private static readonly StringName BrowReticleString = "BrowReticle";
 
     private static readonly System.Collections.Generic.Dictionary<string, (StringName text, bool sounds)> TextTimerRoutines = new()
     {
         { "gazetutorialshort", (GazeTutorialShortString, false) },
+        { "gazeexprtutorial", (GazeExprTutorialString, false) },
         { "blinktutorial", (BlinkTutorialString, false) },
         { "blink", (BlinkRoutineString, true) },
         { "dilationtutorial", (DilationTutorialString, false) },
         { "widentutorial", (WidenTutorialString, false) },
-        { "widen", (WidenRoutineString, true) },
         { "squinttutorial", (SquintTutorialString, false) },
-        { "squint", (SquintRoutineString, true) },
         { "browtutorial", (BrowTutorialString, false) },
-        { "brow", (BrowRoutineString, true) },
         { "convergencetutorial", (ConvergenceTutorialString, false) },
+        // NOTE: "widen"/"squint"/"brow" are intentionally NOT here — they now run the gaze reticle
+        // (see the switch in StartRoutine) so gaze ground-truth is captured during the expression pass.
     };
     public void StartRoutine(string name, float time = 0)
     {
@@ -234,6 +237,18 @@ public partial class MainScene : Node
                 break;
             case "gaze":
                 StartRoutine<ReticleRoutine>(RoutineHelpers.TimeArgs(time));
+                break;
+            case "gazeexpr":
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeTextArgs(time, Tr(GazeExprReticleString)));
+                break;
+            case "squint":
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeTextArgs(time, Tr(SquintReticleString)));
+                break;
+            case "widen":
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeTextArgs(time, Tr(WidenReticleString)));
+                break;
+            case "brow":
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeTextArgs(time, Tr(BrowReticleString)));
                 break;
             case "dilation":
                 StartRoutine<DilationRoutine>();

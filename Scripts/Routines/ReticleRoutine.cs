@@ -15,6 +15,7 @@ public class ReticleRoutine : RoutineBase
     protected ProgressCircle Interface;
 
     protected LabelRoutineInterface Text;
+    protected LabelRoutineInterface Instruction;
     protected Quaternion PreviousHeadRotation = Quaternion.Identity;
     protected float Speed;
 
@@ -43,7 +44,21 @@ public class ReticleRoutine : RoutineBase
         (var textElem, Text) = this.Load<LabelRoutineInterface>("res://Scenes/Routines/TextRoutine.tscn", true);
         textElem.ElementTransform = Transform3D.Identity.TranslatedLocal(Vector3.Forward);
         Text.Label.Text = "";
-            
+
+        // Optional persistent expression prompt (e.g. "Squint and follow the dot"), shown on its own
+        // label below the speed-warning label so the SlowDown/SpeedUp warnings don't overwrite it.
+        if (args.TryGetValue("text", out var instructionValue) &&
+            instructionValue.VariantType is Variant.Type.String)
+        {
+            var instruction = instructionValue.AsString();
+            if (!string.IsNullOrEmpty(instruction))
+            {
+                (var instrElem, Instruction) = this.Load<LabelRoutineInterface>("res://Scenes/Routines/TextRoutine.tscn", true);
+                instrElem.ElementTransform = Transform3D.Identity.TranslatedLocal(Vector3.Forward + (Vector3.Down * 0.35f));
+                Instruction.Label.Text = instruction;
+            }
+        }
+
         MainScene.Instance.TimerEndConnect(Interface.Timer);
     }
     private static float Damp(float a, float b, float lambda, float dt) => Mathf.Lerp(a, b, 1 - Mathf.Exp(-lambda * dt));
