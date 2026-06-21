@@ -104,7 +104,7 @@ public partial class MainScene : Node
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("dilation"));
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("gazetutorial"));
                 //test.SendPacket(new RunVariableLenghtRoutinePacket("debug1", TimeSpan.FromSeconds(30)));
-                test.SendPacket(new RunVariableLenghtRoutinePacket("gaze", TimeSpan.FromSeconds(120)));
+                test.SendPacket(new RunVariableLenghtRoutinePacket("gaze", TimeSpan.FromSeconds(300))); // TEMP-DIAG: was "trainer"
                 //await Task.Delay(5000);
                 //test.SendPacket(new RunVariableLenghtRoutinePacket("convergence", TimeSpan.FromSeconds(5)));
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("debug"));
