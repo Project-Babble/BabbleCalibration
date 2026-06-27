@@ -61,4 +61,14 @@ public static class RoutineHelpers
             {"sounds", sounds },
         };
     }
+
+    public static Dictionary TimeTextArgs(float time, string text, bool sounds = false)
+    {
+        return new Dictionary
+        {
+            {"time", time },
+            {"text", text },
+            {"sounds", sounds },
+        };
+    }
 }

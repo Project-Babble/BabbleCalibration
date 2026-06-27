@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using BabbleCalibration.Scripts;
@@ -24,6 +25,12 @@ public partial class MainScene : Node
     public GodotPacketHandler PacketHandler { get; private set; }
 
     private bool _sendPackets = true;
+    private bool _quitting;
+    private PosixSignalRegistration _sigTerm;
+    private PosixSignalRegistration _sigInt;
+
+    // Opt-in live readout of the gaze packet values (--debug-hud).
+    public static bool ShowDebugHud { get; private set; }
 
     private Socket TryConnect(int retries = 5)
     {
@@ -50,7 +57,18 @@ public partial class MainScene : Node
         base._Ready();
 
         Instance = this;
-        
+
+        // Drive every exit through Shutdown() so the XR session is torn down before we quit.
+        GetTree().AutoAcceptQuit = false;
+        GetTree().QuitOnGoBack = false;
+
+        // A launcher SIGTERM would otherwise hard-kill us mid-session ("Lost pipe connection").
+        if (OS.GetName() != "Android")
+        {
+            _sigTerm = PosixSignalRegistration.Create(PosixSignal.SIGTERM, OnPosixSignal);
+            _sigInt = PosixSignalRegistration.Create(PosixSignal.SIGINT, OnPosixSignal);
+        }
+
         var args = OS.GetCmdlineArgs();
         var argsLower = args.Select(i => i.ToLowerInvariant().Trim()).ToArray();
         
@@ -59,6 +77,7 @@ public partial class MainScene : Node
         var enableOpenVr = false;
         var enableDebug = false;
         var enableTestRoutines = false;
+        var enableDebugHud = false;
         
         var xrInterface = XRServer.FindInterface("OpenXR");
         if (xrInterface != null && xrInterface.IsInitialized()) enableXr = true;
@@ -78,9 +97,12 @@ public partial class MainScene : Node
                 else if (item == "--use-debug") enableDebug = true;
                 else if (item == "--use-openxr-overlay") enableXrOverlay = true;
                 else if (item == "--test-routines") enableTestRoutines = true;
+                else if (item == "--debug-hud") enableDebugHud = true;
             }
         }
         
+        ShowDebugHud = enableDebugHud;
+
         if (!enableOpenVr && !enableXr && !enableDebug) throw new Exception("Invalid configuration, no backend provided");
         if (enableOpenVr && (enableXr || enableXrOverlay)) throw new Exception("Invalid configuration, OpenXR cannot be enabled at the same time as OpenVR");
         if (enableXrOverlay && !enableXr) throw new Exception("Invalid configuration, OpenXR must be enabled to use OpenXR Overlay");
@@ -104,7 +126,7 @@ public partial class MainScene : Node
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("dilation"));
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("gazetutorial"));
                 //test.SendPacket(new RunVariableLenghtRoutinePacket("debug1", TimeSpan.FromSeconds(30)));
-                test.SendPacket(new RunFixedLenghtRoutinePacket("trainer"));
+                test.SendPacket(new RunVariableLenghtRoutinePacket("gaze", TimeSpan.FromSeconds(300))); // TEMP-DIAG: was "trainer"
                 //await Task.Delay(5000);
                 //test.SendPacket(new RunVariableLenghtRoutinePacket("convergence", TimeSpan.FromSeconds(5)));
                 //test.SendPacket(new RunFixedLenghtRoutinePacket("debug"));
@@ -120,7 +142,7 @@ public partial class MainScene : Node
             if (sock == null)
             {
                 GD.Print("Could not connect to Baballonia");
-                GetTree().Quit(-1);
+                Shutdown(-1);
                 return;
             }
             try
@@ -182,6 +204,9 @@ public partial class MainScene : Node
     
     private static readonly StringName GazeTutorialString = "GazeTutorial";
     private static readonly StringName GazeTutorialShortString = "GazeTutorialShort";
+
+    private static readonly StringName GazeExprTutorialString = "GazeExprTutorial";
+    private static readonly StringName GazeExprReticleString = "GazeExprReticle";
     
     private static readonly StringName BlinkTutorialString = "BlinkTutorial";
     private static readonly StringName BlinkRoutineString = "BlinkRoutine";
@@ -189,29 +214,29 @@ public partial class MainScene : Node
     private static readonly StringName DilationTutorialString = "DilationTutorial";
     
     private static readonly StringName WidenTutorialString = "WidenTutorial";
-    private static readonly StringName WidenRoutineString = "WidenRoutine";
-    
+    private static readonly StringName WidenReticleString = "WidenReticle";
+
     private static readonly StringName ConvergenceTutorialString = "ConvergenceTutorial";
-    
+
     private static readonly StringName SquintTutorialString = "SquintTutorial";
-    private static readonly StringName SquintRoutineString = "SquintRoutine";
-    
+    private static readonly StringName SquintReticleString = "SquintReticle";
+
     private static readonly StringName BrowTutorialString = "BrowTutorial";
-    private static readonly StringName BrowRoutineString = "BrowRoutine";
+    private static readonly StringName BrowReticleString = "BrowReticle";
 
     private static readonly System.Collections.Generic.Dictionary<string, (StringName text, bool sounds)> TextTimerRoutines = new()
     {
         { "gazetutorialshort", (GazeTutorialShortString, false) },
+        { "gazeexprtutorial", (GazeExprTutorialString, false) },
         { "blinktutorial", (BlinkTutorialString, false) },
         { "blink", (BlinkRoutineString, true) },
         { "dilationtutorial", (DilationTutorialString, false) },
         { "widentutorial", (WidenTutorialString, false) },
-        { "widen", (WidenRoutineString, true) },
         { "squinttutorial", (SquintTutorialString, false) },
-        { "squint", (SquintRoutineString, true) },
         { "browtutorial", (BrowTutorialString, false) },
-        { "brow", (BrowRoutineString, true) },
         { "convergencetutorial", (ConvergenceTutorialString, false) },
+        // NOTE: "widen"/"squint"/"brow" are intentionally NOT here — they now run the gaze reticle
+        // (see the switch in StartRoutine) so gaze ground-truth is captured during the expression pass.
     };
     public void StartRoutine(string name, float time = 0)
     {
@@ -235,6 +260,18 @@ public partial class MainScene : Node
             case "gaze":
                 StartRoutine<ReticleRoutine>(RoutineHelpers.TimeArgs(time));
                 break;
+            case "gazeexpr":
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeTextArgs(time, Tr(GazeExprReticleString)));
+                break;
+            case "squint":
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeTextArgs(time, Tr(SquintReticleString)));
+                break;
+            case "widen":
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeTextArgs(time, Tr(WidenReticleString)));
+                break;
+            case "brow":
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeTextArgs(time, Tr(BrowReticleString)));
+                break;
             case "dilation":
                 StartRoutine<DilationRoutine>();
                 break;
@@ -245,7 +282,7 @@ public partial class MainScene : Node
                 StartRoutine<GraphRoutine>();
                 break;
             case "close":
-                GetTree().Quit();
+                Shutdown();
                 break;
             case "debug":
                 StartRoutine<DebugRoutine>();
@@ -268,9 +305,39 @@ public partial class MainScene : Node
         _audioPlayer.Play();
     }
 
+    // Single exit point: tear the XR session down, then quit a frame later so the teardown flushes.
+    public void Shutdown(int exitCode = 0)
+    {
+        if (_quitting) return;
+        _quitting = true;
+        Backend?.Shutdown();
+        Callable.From(() => GetTree().Quit(exitCode)).CallDeferred();
+    }
+
+    private void OnPosixSignal(PosixSignalContext context)
+    {
+        context.Cancel = true; // shut down gracefully instead of the runtime's hard-exit
+        Callable.From(() => Shutdown()).CallDeferred();
+    }
+
+    public override void _Notification(int what)
+    {
+        base._Notification(what);
+        if (what == NotificationWMCloseRequest || what == NotificationWMGoBackRequest) Shutdown();
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        _sigTerm?.Dispose();
+        _sigInt?.Dispose();
+        Backend?.Shutdown(); // last-resort net for any quit path that bypassed Shutdown()
+    }
+
     public override void _Process(double delta)
     {
         base._Process(delta);
+        if (_quitting) return;
         var deltaf = (float)delta;
         CurrentRoutine?.Update(deltaf);
     }

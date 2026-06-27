@@ -15,6 +15,8 @@ public class ReticleRoutine : RoutineBase
     protected ProgressCircle Interface;
 
     protected LabelRoutineInterface Text;
+    protected LabelRoutineInterface Instruction;
+    private LabelRoutineInterface _debugHud;
     protected Quaternion PreviousHeadRotation = Quaternion.Identity;
     protected float Speed;
 
@@ -43,7 +45,30 @@ public class ReticleRoutine : RoutineBase
         (var textElem, Text) = this.Load<LabelRoutineInterface>("res://Scenes/Routines/TextRoutine.tscn", true);
         textElem.ElementTransform = Transform3D.Identity.TranslatedLocal(Vector3.Forward);
         Text.Label.Text = "";
-            
+
+        // Optional persistent expression prompt (e.g. "Squint and follow the dot"), shown on its own
+        // label below the speed-warning label so the SlowDown/SpeedUp warnings don't overwrite it.
+        if (args.TryGetValue("text", out var instructionValue) &&
+            instructionValue.VariantType is Variant.Type.String)
+        {
+            var instruction = instructionValue.AsString();
+            if (!string.IsNullOrEmpty(instruction))
+            {
+                (var instrElem, Instruction) = this.Load<LabelRoutineInterface>("res://Scenes/Routines/TextRoutine.tscn", true);
+                instrElem.ElementTransform = Transform3D.Identity.TranslatedLocal(Vector3.Forward + (Vector3.Down * 0.35f));
+                Instruction.Label.Text = instruction;
+            }
+        }
+
+        // Head-locked live packet readout, opt-in via --debug-hud.
+        if (MainScene.ShowDebugHud)
+        {
+            (var hudElem, _debugHud) = this.Load<LabelRoutineInterface>("res://Scenes/Routines/TextRoutine.tscn", true);
+            hudElem.ElementTransform = Transform3D.Identity.TranslatedLocal(Vector3.Forward + (Vector3.Down * 0.55f));
+            hudElem.ElementWidth = 0.6f;
+            _debugHud.Label.Text = "";
+        }
+
         MainScene.Instance.TimerEndConnect(Interface.Timer);
     }
     private static float Damp(float a, float b, float lambda, float dt) => Mathf.Lerp(a, b, 1 - Mathf.Exp(-lambda * dt));
@@ -117,6 +142,17 @@ public class ReticleRoutine : RoutineBase
         (packet.LeftEyePitch, packet.LeftEyeYaw, _) = TransformToReticule(leftEye);
 
         MainScene.Instance.SendPacket(packet);
+
+        if (_debugHud != null)
+        {
+            var pos = headTransform.Origin;
+            _debugHud.Label.Text =
+                $"HEAD P={packet.RoutinePitch,6:F1} Y={packet.RoutineYaw,6:F1} D={packet.RoutineDistance,5:F2}\n" +
+                $"L    P={packet.LeftEyePitch,6:F1} Y={packet.LeftEyeYaw,6:F1}\n" +
+                $"R    P={packet.RightEyePitch,6:F1} Y={packet.RightEyeYaw,6:F1}\n" +
+                $"conv(R-L)={packet.RightEyeYaw - packet.LeftEyeYaw,5:F2}  spd={Speed,4:F1}\n" +
+                $"pos=({pos.X,5:F2},{pos.Y,5:F2},{pos.Z,5:F2})  ref: P~0 Y~0 D~2  L_Y~-1 R_Y~+1";
+        }
 
         return;
         

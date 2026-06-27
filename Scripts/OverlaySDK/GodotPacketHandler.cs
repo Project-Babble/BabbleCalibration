@@ -54,6 +54,6 @@ public class GodotPacketHandler : PacketHandlerAdapter
     public override void OnTermination()
     {
         base.OnTermination();
-        MainScene.Instance.GetTree().Quit();
+        Callable.From(() => MainScene.Instance.Shutdown()).CallDeferred();
     }
 }
