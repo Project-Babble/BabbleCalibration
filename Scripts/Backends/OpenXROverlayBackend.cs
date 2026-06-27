@@ -16,6 +16,11 @@ public partial class OpenXROverlayBackend : Node, IBackend
         throw new System.NotImplementedException();
     }
 
+    public void Shutdown()
+    {
+        throw new System.NotImplementedException();
+    }
+
     public ElementBase CreateHeadElement(bool persistent = false)
     {
         throw new System.NotImplementedException();

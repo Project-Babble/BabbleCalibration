@@ -27,6 +27,13 @@ public partial class OpenVRBackend : Node, IBackend
         _interface = xrInt;
     }
 
+    public void Shutdown()
+    {
+        if (_interface == null) return;
+        _interface.Uninitialize();
+        _interface = null;
+    }
+
     public ElementBase CreateHeadElement(bool persistent = false)
     {
         var elem = CreateElement(persistent);

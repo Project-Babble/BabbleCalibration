@@ -25,6 +25,14 @@ public partial class OpenXRBackend : Node, IBackend
         }
     }
 
+    public void Shutdown()
+    {
+        if (_interface == null) return;
+        if (IsInsideTree()) GetViewport().UseXR = false;
+        _interface.Uninitialize();
+        _interface = null;
+    }
+
     public ElementBase CreateHeadElement(bool persistent = false)
     {
         var elem = OpenXRElement.CreateElement();

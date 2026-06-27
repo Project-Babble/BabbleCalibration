@@ -43,6 +43,8 @@ public partial class DebugBackend : Node, IBackend
             (Vector3.Up * 1.8f));
     }
 
+    public void Shutdown() { }
+
     public ElementBase CreateHeadElement(bool persistent = false)
     {
         var elem = OpenXRElement.CreateElement();

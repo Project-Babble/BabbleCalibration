@@ -24,6 +24,12 @@ public interface IBackend
     /// </summary>
     public abstract void Initialize();
     /// <summary>
+    /// Tears the backend down cleanly before the process exits. For XR backends this ends and
+    /// destroys the runtime session so SteamVR/OpenXR sees a graceful disconnect instead of a
+    /// dropped pipe. Must be idempotent.
+    /// </summary>
+    public abstract void Shutdown();
+    /// <summary>
     /// Create an element, attached to the head. Doesn't require parenting.
     /// </summary>
     /// <returns>The created element</returns>

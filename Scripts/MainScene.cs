@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using BabbleCalibration.Scripts;
@@ -24,6 +25,12 @@ public partial class MainScene : Node
     public GodotPacketHandler PacketHandler { get; private set; }
 
     private bool _sendPackets = true;
+    private bool _quitting;
+    private PosixSignalRegistration _sigTerm;
+    private PosixSignalRegistration _sigInt;
+
+    // Opt-in live readout of the gaze packet values (--debug-hud).
+    public static bool ShowDebugHud { get; private set; }
 
     private Socket TryConnect(int retries = 5)
     {
@@ -50,7 +57,18 @@ public partial class MainScene : Node
         base._Ready();
 
         Instance = this;
-        
+
+        // Drive every exit through Shutdown() so the XR session is torn down before we quit.
+        GetTree().AutoAcceptQuit = false;
+        GetTree().QuitOnGoBack = false;
+
+        // A launcher SIGTERM would otherwise hard-kill us mid-session ("Lost pipe connection").
+        if (OS.GetName() != "Android")
+        {
+            _sigTerm = PosixSignalRegistration.Create(PosixSignal.SIGTERM, OnPosixSignal);
+            _sigInt = PosixSignalRegistration.Create(PosixSignal.SIGINT, OnPosixSignal);
+        }
+
         var args = OS.GetCmdlineArgs();
         var argsLower = args.Select(i => i.ToLowerInvariant().Trim()).ToArray();
         
@@ -59,6 +77,7 @@ public partial class MainScene : Node
         var enableOpenVr = false;
         var enableDebug = false;
         var enableTestRoutines = false;
+        var enableDebugHud = false;
         
         var xrInterface = XRServer.FindInterface("OpenXR");
         if (xrInterface != null && xrInterface.IsInitialized()) enableXr = true;
@@ -78,9 +97,12 @@ public partial class MainScene : Node
                 else if (item == "--use-debug") enableDebug = true;
                 else if (item == "--use-openxr-overlay") enableXrOverlay = true;
                 else if (item == "--test-routines") enableTestRoutines = true;
+                else if (item == "--debug-hud") enableDebugHud = true;
             }
         }
         
+        ShowDebugHud = enableDebugHud;
+
         if (!enableOpenVr && !enableXr && !enableDebug) throw new Exception("Invalid configuration, no backend provided");
         if (enableOpenVr && (enableXr || enableXrOverlay)) throw new Exception("Invalid configuration, OpenXR cannot be enabled at the same time as OpenVR");
         if (enableXrOverlay && !enableXr) throw new Exception("Invalid configuration, OpenXR must be enabled to use OpenXR Overlay");
@@ -120,7 +142,7 @@ public partial class MainScene : Node
             if (sock == null)
             {
                 GD.Print("Could not connect to Baballonia");
-                GetTree().Quit(-1);
+                Shutdown(-1);
                 return;
             }
             try
@@ -260,7 +282,7 @@ public partial class MainScene : Node
                 StartRoutine<GraphRoutine>();
                 break;
             case "close":
-                GetTree().Quit();
+                Shutdown();
                 break;
             case "debug":
                 StartRoutine<DebugRoutine>();
@@ -283,9 +305,39 @@ public partial class MainScene : Node
         _audioPlayer.Play();
     }
 
+    // Single exit point: tear the XR session down, then quit a frame later so the teardown flushes.
+    public void Shutdown(int exitCode = 0)
+    {
+        if (_quitting) return;
+        _quitting = true;
+        Backend?.Shutdown();
+        Callable.From(() => GetTree().Quit(exitCode)).CallDeferred();
+    }
+
+    private void OnPosixSignal(PosixSignalContext context)
+    {
+        context.Cancel = true; // shut down gracefully instead of the runtime's hard-exit
+        Callable.From(() => Shutdown()).CallDeferred();
+    }
+
+    public override void _Notification(int what)
+    {
+        base._Notification(what);
+        if (what == NotificationWMCloseRequest || what == NotificationWMGoBackRequest) Shutdown();
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        _sigTerm?.Dispose();
+        _sigInt?.Dispose();
+        Backend?.Shutdown(); // last-resort net for any quit path that bypassed Shutdown()
+    }
+
     public override void _Process(double delta)
     {
         base._Process(delta);
+        if (_quitting) return;
         var deltaf = (float)delta;
         CurrentRoutine?.Update(deltaf);
     }
