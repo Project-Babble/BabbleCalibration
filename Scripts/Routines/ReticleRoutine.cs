@@ -22,6 +22,7 @@ public class ReticleRoutine : RoutineBase
     private bool _tooFast;
     private bool _tooSlow;
     private float _slowTimer;
+    private string _instructionText = "";
     
     public override void Initialize(IBackend backend, Dictionary args = null)
     {
@@ -33,18 +34,18 @@ public class ReticleRoutine : RoutineBase
             
         Height = backend.HeadTransform().Origin.Y;
             
-        Transform = Transform3D.Identity.TranslatedLocal((Vector3.Forward * 2) + (Vector3.Up * Height));
-            
         if (args.TryGetValue("time", out var value) && value.VariantType is Variant.Type.Float) 
             time = value.AsSingle();
+        if (args.TryGetValue("text", out value) && value.VariantType is Variant.Type.String)
+            _instructionText = value.AsString();
 
-        (Element, Interface) = this.CreateProgressCircle(time, false, Transform);
+        Interface = MainScene.Instance.StartMeasurementProgress(time);
+        Transform = MainScene.Instance.MeasurementTargetTransform;
 
         (var textElem, Text) = this.Load<LabelRoutineInterface>("res://Scenes/Routines/TextRoutine.tscn", true);
         textElem.ElementTransform = Transform3D.Identity.TranslatedLocal(Vector3.Forward);
         Text.Label.Text = "";
             
-        MainScene.Instance.TimerEndConnect(Interface.Timer);
     }
     private static float Damp(float a, float b, float lambda, float dt) => Mathf.Lerp(a, b, 1 - Mathf.Exp(-lambda * dt));
     private static readonly StringName SlowDownString = "SlowDown";
@@ -54,6 +55,12 @@ public class ReticleRoutine : RoutineBase
         base.Update(delta);
 
         var packet = new HmdPositionalDataPacket();
+
+        if (!_tooFast && !_tooSlow && !string.IsNullOrEmpty(_instructionText))
+        {
+            var secondsLeft = Mathf.CeilToInt(Interface.Timer.TimeLeft);
+            Text.Label.Text = string.Format(_instructionText, secondsLeft);
+        }
 
         var headTransform = Backend.HeadTransform();
 

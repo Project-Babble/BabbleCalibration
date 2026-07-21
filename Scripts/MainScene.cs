@@ -20,12 +20,16 @@ public partial class MainScene : Node
     public IBackend Backend { get; private set; }
     public RoutineBase CurrentRoutine { get; private set; }
     public string CurrentRoutineName { get; private set; }
+    public Transform3D MeasurementTargetTransform { get; private set; }
 
     public GodotPacketHandler PacketHandler { get; private set; }
 
     private bool _sendPackets = true;
+    private ProgressCircle _measurementProgress;
+    private ElementBase _measurementElement;
+    private bool _measurementTargetLocked;
 
-    private Socket TryConnect(int retries = 5)
+    private Socket TryConnect(int retries = 60)
     {
         var reconnectCounter = 0;
         while (true)
@@ -53,6 +57,15 @@ public partial class MainScene : Node
         
         var args = OS.GetCmdlineArgs();
         var argsLower = args.Select(i => i.ToLowerInvariant().Trim()).ToArray();
+
+        const string localeArgument = "--baballonia-locale=";
+        var requestedLocale = args.FirstOrDefault(i =>
+            i.StartsWith(localeArgument, StringComparison.OrdinalIgnoreCase));
+        if (requestedLocale != null)
+        {
+            TranslationServer.SetLocale(requestedLocale[localeArgument.Length..].Trim());
+            GD.Print($"Calibration locale: {TranslationServer.GetLocale()}");
+        }
         
         var enableXr = false;
         var enableXrOverlay = false;
@@ -136,6 +149,7 @@ public partial class MainScene : Node
                         )
                     )
                 );
+                AnnounceReady();
             }
             catch
             {
@@ -150,6 +164,17 @@ public partial class MainScene : Node
         AddChild(Backend.Self);
         
         Backend.Initialize();
+
+        // One persistent, world-fixed target for the complete calibration. Routine changes clear
+        // transient UI, but this target remains; each measurement only restarts its progress ring.
+        var targetHeight = Backend.HeadTransform().Origin.Y;
+        MeasurementTargetTransform = Transform3D.Identity.TranslatedLocal(
+            (Vector3.Forward * 2) + (Vector3.Up * targetHeight));
+        _measurementProgress = RoutineBase.LoadScene<ProgressCircle>(
+            "res://Scenes/Routines/ProgressCircle.tscn");
+        _measurementElement = Backend.CreateElementWithObject(_measurementProgress, persistent: true);
+        _measurementElement.ElementTransform = MeasurementTargetTransform;
+        _measurementElement.ElementWidth = 0.075f;
         
         var elem = Backend.CreateElementWithObject(ResourceLoader.Load<PackedScene>("res://Scenes/Routines/FloorIndicator.tscn").Instantiate<PanelContainer>(), persistent: true);
         elem.ElementTransform = OriginOffset * new Transform3D(new Basis(new Quaternion(Vector3.Forward, Vector3.Down)), Vector3.Up * 0.001f);
@@ -171,6 +196,16 @@ public partial class MainScene : Node
         });*/
     }
     private static readonly StringName ConnectingString = "Connecting";
+    private async void AnnounceReady()
+    {
+        // Repeat briefly so readiness cannot be lost while the desktop dispatcher is being set up.
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            SendPacket(new RoutineFinishedPacket("ready"));
+            await ToSignal(GetTree().CreateTimer(0.25), Timer.SignalName.Timeout);
+        }
+    }
+
     public void SendPacket<T>(T packet) where T : IPacket
     {
         if (!_sendPackets) return;
@@ -182,9 +217,15 @@ public partial class MainScene : Node
     
     private static readonly StringName GazeTutorialString = "GazeTutorial";
     private static readonly StringName GazeTutorialShortString = "GazeTutorialShort";
+    private static readonly StringName GazeExpressionTutorialString = "GazeExpressionTutorial";
+    private static readonly StringName GazeExpressionRoutineString = "GazeExpressionRoutine";
     
     private static readonly StringName BlinkTutorialString = "BlinkTutorial";
     private static readonly StringName BlinkRoutineString = "BlinkRoutine";
+    private static readonly StringName WinkLeftTutorialString = "WinkLeftTutorial";
+    private static readonly StringName WinkLeftRoutineString = "WinkLeftRoutine";
+    private static readonly StringName WinkRightTutorialString = "WinkRightTutorial";
+    private static readonly StringName WinkRightRoutineString = "WinkRightRoutine";
     
     private static readonly StringName DilationTutorialString = "DilationTutorial";
     
@@ -199,27 +240,37 @@ public partial class MainScene : Node
     private static readonly StringName BrowTutorialString = "BrowTutorial";
     private static readonly StringName BrowRoutineString = "BrowRoutine";
 
-    private static readonly System.Collections.Generic.Dictionary<string, (StringName text, bool sounds)> TextTimerRoutines = new()
+    private static readonly System.Collections.Generic.Dictionary<string, (StringName text, bool sounds, bool showTestText)> TextTimerRoutines = new()
     {
-        { "gazetutorialshort", (GazeTutorialShortString, false) },
-        { "blinktutorial", (BlinkTutorialString, false) },
-        { "blink", (BlinkRoutineString, true) },
-        { "dilationtutorial", (DilationTutorialString, false) },
-        { "widentutorial", (WidenTutorialString, false) },
-        { "widen", (WidenRoutineString, true) },
-        { "squinttutorial", (SquintTutorialString, false) },
-        { "squint", (SquintRoutineString, true) },
-        { "browtutorial", (BrowTutorialString, false) },
-        { "brow", (BrowRoutineString, true) },
-        { "convergencetutorial", (ConvergenceTutorialString, false) },
+        { "gazetutorialshort", (GazeTutorialShortString, false, false) },
+        { "gazeexprtutorial", (GazeExpressionTutorialString, false, false) },
+        { "blinktutorial", (BlinkTutorialString, false, false) },
+        { "blink", (BlinkRoutineString, true, false) },
+        { "winklefttutorial", (WinkLeftTutorialString, false, false) },
+        { "winkleft", (WinkLeftRoutineString, true, true) },
+        { "winkrighttutorial", (WinkRightTutorialString, false, false) },
+        { "winkright", (WinkRightRoutineString, true, true) },
+        { "dilationtutorial", (DilationTutorialString, false, false) },
+        { "widentutorial", (WidenTutorialString, false, false) },
+        { "squinttutorial", (SquintTutorialString, false, false) },
+        { "browtutorial", (BrowTutorialString, false, false) },
+        { "convergencetutorial", (ConvergenceTutorialString, false, false) },
     };
     public void StartRoutine(string name, float time = 0)
     {
+        // Timer/video callbacks must be tied to the routine that created them. Setting this before
+        // Initialize lets those callbacks capture the correct name instead of a later routine's name.
+        CurrentRoutineName = name;
+
         if (TextTimerRoutines.TryGetValue(name, out var info))
         {
-            StartRoutine<TextTimerRoutine>(RoutineHelpers.LabelTimerRoutineArgs(Tr(info.text),
-                time, true, Transform3D.Identity.TranslatedLocal(Vector3.Forward), info.sounds));
-            CurrentRoutineName = name;
+            var routineText = Tr(info.text);
+            var winkSide = name.StartsWith("winkleft", StringComparison.Ordinal) ? "left" :
+                name.StartsWith("winkright", StringComparison.Ordinal) ? "right" : "";
+
+            StartRoutine<TextTimerRoutine>(RoutineHelpers.LabelTimerRoutineArgs(routineText,
+                time, true, Transform3D.Identity.TranslatedLocal(Vector3.Forward), info.sounds,
+                showProgress: info.sounds, showTestText: info.showTestText, winkSide: winkSide));
             return;
         }
         switch (name)
@@ -228,12 +279,19 @@ public partial class MainScene : Node
                 StartRoutine<VideoRoutine>(RoutineHelpers.FilePathRoutineArgs("res://Assets/BabbleCalibration.ogv",
                     Tr(GazeTutorialString), true,
                     Transform3D.Identity.TranslatedLocal(Vector3.Forward)));
-                CurrentRoutine.CreateProgressCircle(9999999999, false,
-                    Transform3D.Identity.TranslatedLocal(Vector3.Forward * 2 +
-                                                         (Vector3.Up * Backend.HeadTransform().Origin.Y)));
                 break;
             case "gaze":
                 StartRoutine<ReticleRoutine>(RoutineHelpers.TimeArgs(time));
+                break;
+            case "gazeexpr":
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeArgs(time, true));
+                break;
+            case "widen":
+            case "squint":
+            case "brow":
+                // These expression captures require the same world-fixed reticle positional
+                // packets as gaze capture; their instruction was already shown by the tutorial.
+                StartRoutine<ReticleRoutine>(RoutineHelpers.TimeArgs(time, true));
                 break;
             case "dilation":
                 StartRoutine<DilationRoutine>();
@@ -242,6 +300,9 @@ public partial class MainScene : Node
                 StartRoutine<ConvergenceRoutine>(RoutineHelpers.TimeArgs(time));
                 break;
             case "trainer":
+                // Calibration is finished: keep the persistent target through every tutorial and
+                // measurement, then hide it when the training display takes over.
+                _measurementElement.Root.Visible = false;
                 StartRoutine<GraphRoutine>();
                 break;
             case "close":
@@ -255,10 +316,33 @@ public partial class MainScene : Node
                 break;
         }
         
-        CurrentRoutineName = name;
     }
-    public void TimerEndConnect(Timer timer) => timer.Connect(Timer.SignalName.Timeout, Callable.From(SendRoutineEnded));
-    public void SendRoutineEnded() => SendPacket(new RoutineFinishedPacket(CurrentRoutineName));
+    public void TimerEndConnect(Timer timer)
+    {
+        var routineName = CurrentRoutineName;
+        timer.Connect(Timer.SignalName.Timeout, Callable.From(() => SendRoutineEnded(routineName)));
+    }
+
+    public ProgressCircle StartMeasurementProgress(float time)
+    {
+        // XR tracking can still report height 0 while the scene starts. Use the latest valid head
+        // pose when the first measurement begins, then keep the target fixed for all later tests.
+        if (!_measurementTargetLocked)
+        {
+            UpdateMeasurementTargetHeight();
+            _measurementTargetLocked = true;
+        }
+        _measurementProgress.Start(time);
+        TimerEndConnect(_measurementProgress.Timer);
+        return _measurementProgress;
+    }
+
+    public void SendRoutineEnded(string routineName)
+    {
+        // A deferred/final callback from the previous routine must not complete the current step.
+        if (!string.Equals(CurrentRoutineName, routineName, StringComparison.Ordinal)) return;
+        SendPacket(new RoutineFinishedPacket(routineName));
+    }
     public void PlayStartSound() => PlaySound(StartSound);
     public void PlayEndSound() => PlaySound(EndSound);
     private void PlaySound(AudioStream stream)
@@ -271,8 +355,21 @@ public partial class MainScene : Node
     public override void _Process(double delta)
     {
         base._Process(delta);
+        if (!_measurementTargetLocked)
+            UpdateMeasurementTargetHeight();
         var deltaf = (float)delta;
         CurrentRoutine?.Update(deltaf);
+    }
+
+    private void UpdateMeasurementTargetHeight()
+    {
+        if (_measurementElement == null) return;
+        var headHeight = Backend.HeadTransform().Origin.Y;
+        if (headHeight <= 0.1f) return;
+
+        MeasurementTargetTransform = Transform3D.Identity.TranslatedLocal(
+            (Vector3.Forward * 2) + (Vector3.Up * headHeight));
+        _measurementElement.ElementTransform = MeasurementTargetTransform;
     }
 
     public void StartRoutine<T>(Dictionary args = null) where T : RoutineBase, new()
