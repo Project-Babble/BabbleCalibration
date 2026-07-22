@@ -73,7 +73,7 @@ public class DilationRoutine : RoutineBase
         if (!_ended && _stopwatch.Elapsed.TotalSeconds > 16)
         {
             _ended = true;
-            MainScene.Instance.SendRoutineEnded();
+            MainScene.Instance.SendRoutineEnded(MainScene.Instance.CurrentRoutineName);
         }
 
         var elapsed = (float)_stopwatch.Elapsed.TotalSeconds;

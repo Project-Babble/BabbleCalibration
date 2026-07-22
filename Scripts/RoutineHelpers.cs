@@ -41,7 +41,9 @@ public static class RoutineHelpers
         };
     }
     
-    public static Dictionary LabelTimerRoutineArgs(string text, float time, bool head = false, Transform3D? transform = null, bool sounds = false)
+    public static Dictionary LabelTimerRoutineArgs(string text, float time, bool head = false,
+        Transform3D? transform = null, bool sounds = false, bool showProgress = false,
+        bool showTestText = false, string winkSide = "")
     {
         return new Dictionary
         {
@@ -50,6 +52,9 @@ public static class RoutineHelpers
             {"transform", transform ?? Transform3D.Identity.TranslatedLocal(Vector3.Forward + Vector3.Up) },
             {"time", time },
             {"sounds", sounds },
+            {"show_progress", showProgress },
+            {"show_test_text", showTestText },
+            {"wink_side", winkSide },
         };
     }
     
@@ -58,6 +63,16 @@ public static class RoutineHelpers
         return new Dictionary
         {
             {"time", time },
+            {"sounds", sounds },
+        };
+    }
+
+    public static Dictionary TimeTextArgs(float time, string text, bool sounds = false)
+    {
+        return new Dictionary
+        {
+            {"time", time },
+            {"text", text },
             {"sounds", sounds },
         };
     }

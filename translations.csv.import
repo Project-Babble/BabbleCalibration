@@ -6,12 +6,14 @@ uid="uid://d0gjooib8me1t"
 
 [deps]
 
-files=["res://translations.en.translation", "res://translations.es.translation"]
+files=["res://translations.en.translation", "res://translations.es.translation", "res://translations.af.translation", "res://translations.ar.translation", "res://translations.ca.translation", "res://translations.cs.translation", "res://translations.da.translation", "res://translations.de.translation", "res://translations.el.translation", "res://translations.fi.translation", "res://translations.fr.translation", "res://translations.he.translation", "res://translations.hu.translation", "res://translations.it.translation", "res://translations.ja.translation", "res://translations.ko.translation", "res://translations.nl.translation", "res://translations.nb.translation", "res://translations.pl.translation", "res://translations.pt.translation", "res://translations.ro.translation", "res://translations.ru.translation", "res://translations.sr.translation", "res://translations.sv.translation", "res://translations.tr.translation", "res://translations.uk.translation", "res://translations.vi.translation", "res://translations.zh_CN.translation", "res://translations.zh_TW.translation"]
 
 source_file="res://translations.csv"
-dest_files=["res://translations.en.translation", "res://translations.es.translation"]
+dest_files=["res://translations.en.translation", "res://translations.es.translation", "res://translations.af.translation", "res://translations.ar.translation", "res://translations.ca.translation", "res://translations.cs.translation", "res://translations.da.translation", "res://translations.de.translation", "res://translations.el.translation", "res://translations.fi.translation", "res://translations.fr.translation", "res://translations.he.translation", "res://translations.hu.translation", "res://translations.it.translation", "res://translations.ja.translation", "res://translations.ko.translation", "res://translations.nl.translation", "res://translations.nb.translation", "res://translations.pl.translation", "res://translations.pt.translation", "res://translations.ro.translation", "res://translations.ru.translation", "res://translations.sr.translation", "res://translations.sv.translation", "res://translations.tr.translation", "res://translations.uk.translation", "res://translations.vi.translation", "res://translations.zh_CN.translation", "res://translations.zh_TW.translation"]
 
 [params]
 
 compress=true
 delimiter=0
+unescape_keys=false
+unescape_translations=true

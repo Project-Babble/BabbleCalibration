@@ -14,13 +14,35 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_owx1i")
 script = ExtResource("1_owx1i")
-Label = NodePath("Label")
+Label = NodePath("Content/Label")
 Timer = NodePath("Timer")
 
-[node name="Label" type="Label" parent="."]
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+alignment = 1
+
+[node name="EyeIcons" type="HBoxContainer" parent="Content"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 96
+alignment = 1
+
+[node name="LeftEye" type="TextureRect" parent="Content/EyeIcons"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RightEye" type="TextureRect" parent="Content/EyeIcons"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Content"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "placeholder"
+text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
